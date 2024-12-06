@@ -63,6 +63,10 @@ impl ExprRef {
     pub(crate) fn index(&self) -> usize {
         (self.0.get() - 1) as usize
     }
+
+    pub fn raw_value(&self) -> u32 {
+        self.0.get()
+    }
 }
 
 /// Context which is used to create all SMT expressions. Expressions are interned such that
