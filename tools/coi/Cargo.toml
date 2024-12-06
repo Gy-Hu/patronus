@@ -1,0 +1,15 @@
+[package]
+name = "coi"
+version = "0.1.0"
+description = "A cone of influence analysis tool based on the patronus library."
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+patronus.workspace = true
+clap.workspace = true
+baa.workspace = true

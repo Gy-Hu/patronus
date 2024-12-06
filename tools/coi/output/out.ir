@@ -1,0 +1,94 @@
+; Intermediate format for COI-reduced system
+; Original system name: hw
+; Signals in COI: 12
+
+(module hw
+
+  ; State variables
+
+  ; Input variables
+  (input
+    (name #0.IMP.src0 : (_ BitVec 16))
+    (type (_ BitVec 16))
+    (comment "#0.IMP.src0")
+  )
+  (input
+    (name #0.IMP.src1 : (_ BitVec 16))
+    (type (_ BitVec 16))
+    (comment "#0.IMP.src1")
+  )
+  (input
+    (name #0.SPEC.src0 : (_ BitVec 32))
+    (type (_ BitVec 32))
+    (comment "#0.SPEC.src0")
+  )
+  (input
+    (name #0.SPEC.src0_abs : (_ BitVec 32))
+    (type (_ BitVec 32))
+    (comment "#0.SPEC.src0_abs")
+  )
+  (input
+    (name #0.SPEC.src0_neg : (_ BitVec 32))
+    (type (_ BitVec 32))
+    (comment "#0.SPEC.src0_neg")
+  )
+  (input
+    (name #0.SPEC.src1 : (_ BitVec 32))
+    (type (_ BitVec 32))
+    (comment "#0.SPEC.src1")
+  )
+  (input
+    (name #0.SPEC.src1_abs : (_ BitVec 32))
+    (type (_ BitVec 32))
+    (comment "#0.SPEC.src1_abs")
+  )
+  (input
+    (name #0.SPEC.src1_neg : (_ BitVec 32))
+    (type (_ BitVec 32))
+    (comment "#0.SPEC.src1_neg")
+  )
+  (input
+    (name #1.IMP.src0 : (_ BitVec 16))
+    (type (_ BitVec 16))
+    (comment "#1.IMP.src0")
+  )
+  (input
+    (name #1.IMP.src1 : (_ BitVec 16))
+    (type (_ BitVec 16))
+    (comment "#1.IMP.src1")
+  )
+  (input
+    (name #2.IMP.src0 : (_ BitVec 16))
+    (type (_ BitVec 16))
+    (comment "#2.IMP.src0")
+  )
+  (input
+    (name #2.IMP.src1 : (_ BitVec 16))
+    (type (_ BitVec 16))
+    (comment "#2.IMP.src1")
+  )
+
+  ; Bad states
+  (bad
+    (expr (bvand (_ bv1 1) (bvnot (bvnot (bvand (bvand (bvand (bvand (bvnot (bvnot (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000000 32)))) (bvnot (bvnot (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000000 32))))) (bvand (bvnot (bvnot (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src0 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src0 : (_ BitVec 16))))) (bvand (bvnot (bvnot (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src1 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src1 : (_ BitVec 16))))) (bvnot (= (bvand (bvmul (ite (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32))) (ite (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)))) (_ bv0000ffff 32)) (bvand (bvmul (concat (_ bv0000 16) #1.IMP.src0 : (_ BitVec 16)) (concat (_ bv0000 16) #1.IMP.src1 : (_ BitVec 16))) (_ bv0000ffff 32)))))))))
+    (type (_ BitVec 1))
+    (comment "anonymous")
+  )
+  (bad
+    (expr (bvand (_ bv1 1) (bvnot (bvnot (bvand (bvand (bvand (bvand (bvnot (bvnot (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000000 32)))) (bvnot (bvnot (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000000 32))))) (bvand (bvnot (bvnot (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src0 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src0 : (_ BitVec 16))))) (bvand (bvnot (bvnot (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src1 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src1 : (_ BitVec 16))))) (bvnot (= (bvand (bvmul (ite (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32))) (ite (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)))) (_ bv0000ffff 32)) (bvand (bvmul (concat (_ bv0000 16) #2.IMP.src0 : (_ BitVec 16)) (concat (_ bv0000 16) #2.IMP.src1 : (_ BitVec 16))) (_ bv0000ffff 32)))))))))
+    (type (_ BitVec 1))
+    (comment "anonymous")
+  )
+  (bad
+    (expr (bvand (_ bv1 1) (bvnot (bvnot (bvand (bvand (bvand (bvand (bvnot (bvnot (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000000 32)))) (bvnot (bvnot (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000000 32))))) (bvand (bvnot (bvnot (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src0 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src0 : (_ BitVec 16))))) (bvand (bvnot (bvnot (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src1 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src1 : (_ BitVec 16))))) (bvnot (= (bvand (bvmul (ite (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32))) (ite (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)))) (_ bv0000ffff 32)) (bvand (bvmul (concat (_ bv0000 16) #0.IMP.src0 : (_ BitVec 16)) (concat (_ bv0000 16) #0.IMP.src1 : (_ BitVec 16))) (_ bv0000ffff 32)))))))))
+    (type (_ BitVec 1))
+    (comment "anonymous")
+  )
+  (bad
+    (expr (bvand (_ bv1 1) (bvnot (bvnot (bvand (bvand (bvand (bvand (bvnot (bvnot (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000000 32)))) (bvnot (bvnot (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000000 32))))) (bvand (bvnot (bvnot (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src0 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src0 : (_ BitVec 16))))) (bvand (bvnot (bvnot (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000000 32)))) (= #0.SPEC.src1 : (_ BitVec 32) (concat (_ bv0000 16) #0.IMP.src1 : (_ BitVec 16))))) (bvnot (= (bvand (bvmul (ite (= #0.SPEC.src0_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src0_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src0 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src0 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src0 : (_ BitVec 32)) #0.SPEC.src0 : (_ BitVec 32))) (ite (= #0.SPEC.src1_neg : (_ BitVec 32) (_ bv00000001 32)) (bvand (bvadd (bvxor (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) (ite (= #0.SPEC.src1_abs : (_ BitVec 32) (_ bv00000001 32)) (ite (bvnot (= (bvand #0.SPEC.src1 : (_ BitVec 32) (_ bv00008000 32)) (_ bv00000000 32))) (bvand (bvadd (bvxor #0.SPEC.src1 : (_ BitVec 32) (_ bvffffffff 32)) (_ bv00000001 32)) (_ bv0000ffff 32)) #0.SPEC.src1 : (_ BitVec 32)) #0.SPEC.src1 : (_ BitVec 32)))) (_ bv0000ffff 32)) (bvand (bvmul (concat (_ bv0000 16) #0.IMP.src0 : (_ BitVec 16)) (concat (_ bv0000 16) #0.IMP.src1 : (_ BitVec 16))) (_ bv0000ffff 32)))))))))
+    (type (_ BitVec 1))
+    (comment "anonymous")
+  )
+
+  ; Constraints
+)
