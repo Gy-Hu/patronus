@@ -192,5 +192,6 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    Ok(())
+    // Exit after all verifications are complete
+    std::process::exit(0);
 } 
