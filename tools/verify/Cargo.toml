@@ -8,3 +8,5 @@ patronus = { path = "../../patronus" }
 clap = { version = "4.4.11", features = ["derive"] }
 tokio = { version = "1.0", features = ["full"] }
 futures = "0.3"
+ctrlc = "3.4"
+libc = "0.2"
