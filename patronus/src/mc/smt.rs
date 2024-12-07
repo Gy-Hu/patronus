@@ -24,7 +24,7 @@ pub struct SmtSolverCmd {
 
 pub const BITWUZLA_CMD: SmtSolverCmd = SmtSolverCmd {
     name: "bitwuzla",
-    args: &[],
+    args: &["--sat-solver=kissat", "--abstraction", "--bv-solver=bitblast"],
     options: &["incremental"],
     supports_uf: false,
     supports_check_assuming: true,
@@ -32,7 +32,7 @@ pub const BITWUZLA_CMD: SmtSolverCmd = SmtSolverCmd {
 
 pub const YICES2_CMD: SmtSolverCmd = SmtSolverCmd {
     name: "yices-smt2",
-    args: &["--incremental"],
+    args: &["--incremental","--nthreads=2"],
     options: &[],
     supports_uf: false, // actually true, but ignoring for now
     supports_check_assuming: false,
