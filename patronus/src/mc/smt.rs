@@ -30,6 +30,22 @@ pub const BITWUZLA_CMD: SmtSolverCmd = SmtSolverCmd {
     supports_check_assuming: true,
 };
 
+pub const BITWUZLA_KISSAT_CMD: SmtSolverCmd = SmtSolverCmd {
+    name: "bitwuzla",
+    args: &["--sat-solver=kissat", "--bv-solver=bitblast"],
+    options: &["incremental"],
+    supports_uf: false,
+    supports_check_assuming: true,
+};
+
+pub const BITWUZLA_ABSTRACTION_CMD: SmtSolverCmd = SmtSolverCmd {
+    name: "bitwuzla",
+    args: &["--abstraction"],
+    options: &["incremental"],
+    supports_uf: false,
+    supports_check_assuming: true,
+};
+
 pub const YICES2_CMD: SmtSolverCmd = SmtSolverCmd {
     name: "yices-smt2",
     args: &["--incremental","--nthreads=2"],
