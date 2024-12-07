@@ -10,7 +10,8 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio::select;
 use tokio::process::Command as TokioCommand;
-
+use std::time::Duration;
+use tokio::time::sleep;
 /// Verification tool using Bitwuzla
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -229,7 +230,8 @@ async fn main() -> std::io::Result<()> {
             Err(e) => println!("Task failed: {}", e),
         }
     }
-
+    //sleep for 1 second
+    sleep(Duration::from_secs(1)).await;
     // Exit after all verifications are complete
     std::process::exit(0);
 } 
