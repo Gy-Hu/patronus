@@ -1,7 +1,7 @@
 use clap::Parser;
 use patronus::btor2;
 use patronus::system::analysis::cone_of_influence;
-use patronus::mc::{SmtModelChecker, SmtModelCheckerOptions, BITWUZLA_CMD, BITWUZLA_KISSAT_CMD, BITWUZLA_ABSTRACTION_CMD, YICES2_CMD, ModelCheckResult};
+use patronus::mc::{SmtModelChecker, SmtModelCheckerOptions, BITWUZLA_CMD, BITWUZLA_KISSAT_CMD, BITWUZLA_ABSTRACTION_CMD, YICES2_CMD,YICES2_KISSAT_CMD, ModelCheckResult};
 use patronus::system::TransitionSystem;
 use std::path::PathBuf;
 use futures::stream::FuturesUnordered;
@@ -123,6 +123,7 @@ async fn main() -> std::io::Result<()> {
             let bitwuzla_kissat_solver = SmtModelChecker::new(BITWUZLA_KISSAT_CMD, solver_opts.clone());
             let bitwuzla_abstraction_solver = SmtModelChecker::new(BITWUZLA_ABSTRACTION_CMD, solver_opts.clone());
             let yices_solver = SmtModelChecker::new(YICES2_CMD, solver_opts.clone());
+            let yices_kissat_solver = SmtModelChecker::new(YICES2_KISSAT_CMD, solver_opts.clone());
 
             // Create five tasks for parallel solving
             let mut bitwuzla_handle = {
@@ -154,6 +155,14 @@ async fn main() -> std::io::Result<()> {
                 let prop_sys = prop_sys.clone();
                 tokio::spawn(async move {
                     ("yices", yices_solver.check(&mut ctx, &prop_sys, 1))
+                })
+            };
+
+            let mut yices_kissat_handle = {
+                let mut ctx = ctx.clone();
+                let prop_sys = prop_sys.clone();
+                tokio::spawn(async move {
+                    ("yices-kissat", yices_kissat_solver.check(&mut ctx, &prop_sys, 1))
                 })
             };
 
@@ -193,6 +202,7 @@ async fn main() -> std::io::Result<()> {
                 bitwuzla_result = &mut bitwuzla_handle => {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         yices_handle.abort();
+                        yices_kissat_handle.abort();  
                         native_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_handle.abort();
@@ -201,13 +211,27 @@ async fn main() -> std::io::Result<()> {
                         return (idx, name, cone.len(), ("cancelled", Ok(ModelCheckResult::Success)));
                     }
                 }
+                
                 yices_result = &mut yices_handle => {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         bitwuzla_handle.abort();
                         native_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_handle.abort();
+                        yices_kissat_handle.abort();  
                         yices_result.unwrap()
+                    } else {
+                        return (idx, name, cone.len(), ("cancelled", Ok(ModelCheckResult::Success)));
+                    }
+                }
+                yices_kissat_result = &mut yices_kissat_handle => {
+                    if !SHUTTING_DOWN.load(Ordering::SeqCst) {
+                        bitwuzla_handle.abort();
+                        yices_handle.abort();
+                        native_handle.abort();
+                        bitwuzla_kissat_handle.abort();
+                        bitwuzla_abstraction_handle.abort();
+                        yices_kissat_result.unwrap()
                     } else {
                         return (idx, name, cone.len(), ("cancelled", Ok(ModelCheckResult::Success)));
                     }
@@ -216,6 +240,7 @@ async fn main() -> std::io::Result<()> {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         bitwuzla_handle.abort();
                         yices_handle.abort();
+                        yices_kissat_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_handle.abort();
                         native_result.unwrap()
@@ -227,6 +252,7 @@ async fn main() -> std::io::Result<()> {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         bitwuzla_handle.abort();
                         yices_handle.abort();
+                        yices_kissat_handle.abort();
                         native_handle.abort();
                         bitwuzla_abstraction_handle.abort();
                         bitwuzla_kissat_result.unwrap()
@@ -238,6 +264,7 @@ async fn main() -> std::io::Result<()> {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         bitwuzla_handle.abort();
                         yices_handle.abort();
+                        yices_kissat_handle.abort();
                         native_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_result.unwrap()

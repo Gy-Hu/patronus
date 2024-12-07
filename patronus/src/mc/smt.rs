@@ -54,6 +54,14 @@ pub const YICES2_CMD: SmtSolverCmd = SmtSolverCmd {
     supports_check_assuming: false,
 };
 
+pub const YICES2_KISSAT_CMD: SmtSolverCmd = SmtSolverCmd {
+    name: "yices-smt2",
+    args: &["--incremental", "--delegate=kissat"],
+    options: &[],
+    supports_uf: false, 
+    supports_check_assuming: false,
+};
+
 #[derive(Debug, Clone, Copy)]
 pub struct SmtModelCheckerOptions {
     /// Perform additional checking to ensure that the assumptions are satisfiable.
