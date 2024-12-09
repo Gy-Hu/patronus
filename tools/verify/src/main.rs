@@ -14,6 +14,7 @@ use std::time::Duration;
 use tokio::time::sleep;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::process::Command;
+use patronus::mc::Witness;
 use ctrlc;
 
 // Global flag to track if we're shutting down
@@ -158,11 +159,12 @@ async fn main() -> std::io::Result<()> {
             };
 
             let mut native_handle = {
+                let input_path = input_path.clone();
                 tokio::spawn(async move {
                     let mut child = TokioCommand::new("bitwuzla")
                         .args(["--lang", "btor2"])
                         .arg(input_path)
-                        .kill_on_drop(true)  // Ensure process is killed when dropped
+                        .kill_on_drop(true)
                         .spawn()
                         .unwrap();
 
@@ -172,8 +174,13 @@ async fn main() -> std::io::Result<()> {
                                 let stdout = String::from_utf8_lossy(&output.stdout);
                                 if stdout.contains("unsat") {
                                     Ok(ModelCheckResult::Success)
+                                } else if stdout.contains("sat") {
+                                    Ok(ModelCheckResult::Fail(Witness::default()))
                                 } else {
-                                    Ok(ModelCheckResult::Success)
+                                    Err(std::io::Error::new(
+                                        std::io::ErrorKind::Other,
+                                        "Unexpected bitwuzla output".to_string()
+                                    ))
                                 }
                             } else {
                                 Err(std::io::Error::new(
@@ -188,12 +195,50 @@ async fn main() -> std::io::Result<()> {
                 })
             };
 
+            let mut native_abs_handle = {
+                let input_path = input_path.clone();
+                tokio::spawn(async move {
+                    let mut child = TokioCommand::new("bitwuzla")
+                        .args(["--lang", "btor2", "--abstraction"])
+                        .arg(input_path)
+                        .kill_on_drop(true)
+                        .spawn()
+                        .unwrap();
+
+                    let result = match child.wait_with_output().await {
+                        Ok(output) => {
+                            if output.status.success() {
+                                let stdout = String::from_utf8_lossy(&output.stdout);
+                                if stdout.contains("unsat") {
+                                    Ok(ModelCheckResult::Success)
+                                } else if stdout.contains("sat") {
+                                    Ok(ModelCheckResult::Fail(Witness::default()))
+                                } else {
+                                    Err(std::io::Error::new(
+                                        std::io::ErrorKind::Other,
+                                        "Unexpected bitwuzla output".to_string()
+                                    ))
+                                }
+                            } else {
+                                Err(std::io::Error::new(
+                                    std::io::ErrorKind::Other,
+                                    format!("bitwuzla error: {}", String::from_utf8_lossy(&output.stderr))
+                                ))
+                            }
+                        },
+                        Err(e) => Err(e),
+                    };
+                    ("bitwuzla-native-abs", result)
+                })
+            };
+
             // Wait for any solver to complete or shutdown signal
             let result = select! {
                 bitwuzla_result = &mut bitwuzla_handle => {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         yices_handle.abort();
                         native_handle.abort();
+                        native_abs_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_handle.abort();
                         bitwuzla_result.unwrap()
@@ -205,6 +250,7 @@ async fn main() -> std::io::Result<()> {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         bitwuzla_handle.abort();
                         native_handle.abort();
+                        native_abs_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_handle.abort();
                         yices_result.unwrap()
@@ -216,9 +262,22 @@ async fn main() -> std::io::Result<()> {
                     if !SHUTTING_DOWN.load(Ordering::SeqCst) {
                         bitwuzla_handle.abort();
                         yices_handle.abort();
+                        native_abs_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_handle.abort();
                         native_result.unwrap()
+                    } else {
+                        return (idx, name, cone.len(), ("cancelled", Ok(ModelCheckResult::Success)));
+                    }
+                }
+                native_abs_result = &mut native_abs_handle => {
+                    if !SHUTTING_DOWN.load(Ordering::SeqCst) {
+                        bitwuzla_handle.abort();
+                        yices_handle.abort();
+                        native_handle.abort();
+                        bitwuzla_kissat_handle.abort();
+                        bitwuzla_abstraction_handle.abort();
+                        native_abs_result.unwrap()
                     } else {
                         return (idx, name, cone.len(), ("cancelled", Ok(ModelCheckResult::Success)));
                     }
@@ -228,6 +287,7 @@ async fn main() -> std::io::Result<()> {
                         bitwuzla_handle.abort();
                         yices_handle.abort();
                         native_handle.abort();
+                        native_abs_handle.abort();
                         bitwuzla_abstraction_handle.abort();
                         bitwuzla_kissat_result.unwrap()
                     } else {
@@ -239,6 +299,7 @@ async fn main() -> std::io::Result<()> {
                         bitwuzla_handle.abort();
                         yices_handle.abort();
                         native_handle.abort();
+                        native_abs_handle.abort();
                         bitwuzla_kissat_handle.abort();
                         bitwuzla_abstraction_result.unwrap()
                     } else {
