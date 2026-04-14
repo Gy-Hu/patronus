@@ -30,8 +30,57 @@ fn main() {
 
     let reduced = reduce_by_coi(&ctx, &sys);
 
-    std::fs::write(full_out, btor2::serialize_to_str(&ctx, &sys)).unwrap();
-    std::fs::write(reduced_out, btor2::serialize_to_str(&ctx, &reduced)).unwrap();
+    // Serialization may panic when running in COI_SINGLE_PROP mode, since we
+    // leave all outputs/bads in place — some of them will reference symbols
+    // not in the reduced state/input set. That's fine when we only want to
+    // print the COI set and compare against pono.
+    if std::env::var("COI_NO_WRITE").is_err() {
+        std::fs::write(full_out, btor2::serialize_to_str(&ctx, &sys)).unwrap();
+        std::fs::write(reduced_out, btor2::serialize_to_str(&ctx, &reduced)).unwrap();
+    }
+
+    if std::env::var("COI_DUMP_NAMES").is_ok() {
+        eprintln!("COI statevars (kept):");
+        let mut names: Vec<&str> = reduced
+            .states
+            .iter()
+            .map(|s| ctx[s.symbol].get_symbol_name(&ctx).unwrap_or("?"))
+            .collect();
+        names.sort();
+        for n in names {
+            eprintln!("  {n}");
+        }
+        // For a fair comparison against pono, also list every original input
+        // whose symbol appears in the cone. We iterate the original `sys`
+        // because the reduced system intentionally keeps *all* inputs to
+        // preserve the primary-input interface for abc `dsec`.
+        eprintln!("COI inputvars (in cone):");
+        let keep: rustc_hash::FxHashSet<ExprRef> = {
+            let roots = sys
+                .bad_states
+                .iter()
+                .copied()
+                .chain(sys.constraints.iter().copied())
+                .chain(sys.outputs.iter().map(|o| o.expr));
+            let mut out = rustc_hash::FxHashSet::default();
+            for r in roots {
+                for sym in cone_of_influence(&ctx, &sys, r) {
+                    out.insert(sym);
+                }
+            }
+            out
+        };
+        let mut input_names: Vec<&str> = sys
+            .inputs
+            .iter()
+            .filter(|i| keep.contains(i))
+            .map(|i| ctx[*i].get_symbol_name(&ctx).unwrap_or("?"))
+            .collect();
+        input_names.sort();
+        for n in input_names {
+            eprintln!("  {n}");
+        }
+    }
 
     eprintln!(
         "full   : {} inputs, {} states, {} bads, {} constraints, {} outputs",
@@ -73,14 +122,26 @@ fn promote_outputs_to_bads(ctx: &mut Context, sys: &mut TransitionSystem) {
 fn reduce_by_coi(ctx: &Context, sys: &TransitionSystem) -> TransitionSystem {
     // Roots: every bad state, every constraint, and every output. Dropping an
     // input/state that none of these depend on is sound w.r.t. all observable
-    // behaviour under the given constraints.
+    // behaviour under the given constraints. For apples-to-apples comparison
+    // with tools that only support a single property at a time (e.g. pono's
+    // `--prop N`), set `COI_SINGLE_PROP=N` to root on only that bad.
     let mut keep: FxHashSet<ExprRef> = FxHashSet::default();
-    let roots = sys
-        .bad_states
-        .iter()
-        .copied()
-        .chain(sys.constraints.iter().copied())
-        .chain(sys.outputs.iter().map(|o| o.expr));
+    let roots: Vec<ExprRef> = match std::env::var("COI_SINGLE_PROP") {
+        Ok(s) => {
+            let idx: usize = s.parse().expect("COI_SINGLE_PROP must be an integer");
+            // pono's COI visits bad + constraints; mirror that.
+            std::iter::once(sys.bad_states[idx])
+                .chain(sys.constraints.iter().copied())
+                .collect()
+        }
+        Err(_) => sys
+            .bad_states
+            .iter()
+            .copied()
+            .chain(sys.constraints.iter().copied())
+            .chain(sys.outputs.iter().map(|o| o.expr))
+            .collect(),
+    };
     for r in roots {
         for sym in cone_of_influence(ctx, sys, r) {
             keep.insert(sym);
