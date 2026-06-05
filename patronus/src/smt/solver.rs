@@ -177,6 +177,19 @@ impl Solver for SmtLibSolver {
     }
 }
 
+impl SmtLibSolver {
+    pub fn write_options(&self, out: &mut impl Write) -> Result<()> {
+        for option in self.options.iter() {
+            serialize_cmd(
+                out,
+                None,
+                &SmtCommand::SetOption(option.to_string(), "true".to_string()),
+            )?
+        }
+        Ok(())
+    }
+}
+
 /// Launches an SMT solver and communicates through `stdin` using SMTLib commands.
 pub struct SmtLibSolverCtx {
     name: String,
